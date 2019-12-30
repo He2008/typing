@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "dev": "parcel index.html"
+    "dev": "parcel index.html",
+    "build":"parcel build index.html --public-url /typing/"
   },
   "devDependencies": {
     "autoprefixer": "^9.7.3",
