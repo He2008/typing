@@ -1,0 +1,42 @@
+@import "~bulma/bulma";
+body{
+    p{
+        font-size: 12px;
+    }
+}
+.container{
+    width: 1280px;
+    margin: 0 auto;
+}
+
+.screen {
+    border:1px solid #ccc;
+    min-height: 3rem;
+    &-warp{
+        position: relative;
+        font-size: 26px;
+        padding: 5px;
+        .word{
+            display: inline-block;
+            width: 1.2rem;
+            text-align: center;
+            &.typed{
+                opacity: 0;
+            }
+            &.error{
+                color:red;
+            }
+        }
+        &-article{
+            color: rgba(0,0,0,.4);
+        }
+        &-input{
+        padding: 5px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: blue;
+         
+        }
+    }
+}

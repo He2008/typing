@@ -1,0 +1,15 @@
+{
+  "scripts": {
+    "dev": "parcel index.html"
+  },
+  "devDependencies": {
+    "autoprefixer": "^9.7.3",
+    "parcel-bundler": "^1.12.4",
+    "sass": "^1.23.7",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "bulma": "^0.8.0"
+  }
+}
