@@ -1,12 +1,13 @@
 # typing
 
-这个项目使用 [`parcel`(查看文档)](https://www.parceljs.cn) 打包工具(没法用)
+这个项目使用 [`parcel`(查看文档)](https://www.parceljs.cn) 打包
 
 集成了
 
 - Typescript
 - Scss
-- [tailwindcss(文档)](https://www.tailwindcss.cn)
+- bulma
+<!-- - [tailwindcss(文档)](https://www.tailwindcss.cn) -->
 
 
 ## Script
