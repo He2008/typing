@@ -1,6 +1,9 @@
-name: CI
+name: dist build 
 
-on: [push]
+on: 
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -9,9 +12,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Run a one-line script
-      run: echo Hello, world!
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
+    - run: npm ci
+    - run: npm install
+    - run: npm run build
+    
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v2.5.0
+      env:
+        ACTIONS_DEPLOY_KEY: ${{SERETS.key}}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: dist
+
