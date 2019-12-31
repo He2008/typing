@@ -1,0 +1,57 @@
+body p {
+  font-size: 12px;
+}
+
+.web-font {
+  font-family: monospace;
+}
+
+.container {
+  width: 1280px;
+  margin: 0 auto;
+}
+
+.screen {
+  border: 1px solid #ccc;
+  min-height: 3rem;
+}
+.screen-warp {
+  position: relative;
+  font-size: 26px;
+  padding: 5px;
+}
+.screen-warp .word {
+  font-size: 18px;
+  line-height: 24px;
+  display: inline-block;
+  width: 9px;
+  text-align: center;
+  transition: color 0.12s ease-in-out;
+  border-bottom: 3px solid transparent;
+  margin: 1px;
+  min-width: 8px;
+  border-radius: 4px;
+}
+.screen-warp .word.typed {
+  opacity: 0;
+}
+.screen-warp .word.error {
+  background-color: #ffdcd9;
+  color: #d55b60;
+}
+.screen-warp .word.correct {
+  background: #edf7e7;
+  color: #95c590;
+}
+.screen-warp-article {
+  color: rgba(0, 0, 0, 0.8);
+}
+.screen-warp-input {
+  padding: 5px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: blue;
+}
+
+/*# sourceMappingURL=/layout.2858bced.css.map */

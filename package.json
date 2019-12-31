@@ -1,7 +1,7 @@
 {
   "scripts": {
     "dev": "parcel index.html",
-    "build":"parcel build index.html --public-url /typing/"
+    "build": "parcel build index.html --public-url /typing/"
   },
   "devDependencies": {
     "autoprefixer": "^9.7.3",
@@ -10,7 +10,5 @@
     "ts-loader": "^6.2.1",
     "typescript": "^3.7.4"
   },
-  "dependencies": {
-    "bulma": "^0.8.0"
-  }
+  "dependencies": {}
 }

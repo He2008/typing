@@ -1,9 +1,13 @@
-@import "~bulma/bulma";
+
+
 body{
     p{
         font-size: 12px;
     }
 }
+.web-font{
+    font-family: monospace;
+} 
 .container{
     width: 1280px;
     margin: 0 auto;
@@ -17,18 +21,31 @@ body{
         font-size: 26px;
         padding: 5px;
         .word{
+            font-size: 18px;
+            line-height: 24px;
             display: inline-block;
-            width: 1.2rem;
+            width: 9px;
             text-align: center;
+            transition: color 0.12s ease-in-out;
+            border-bottom: 3px solid transparent;
+            margin: 1px;
+            min-width: 8px;
+            border-radius: 4px;
             &.typed{
                 opacity: 0;
             }
             &.error{
-                color:red;
+           
+                background-color: #ffdcd9;
+                color: #d55b60;
+            }
+            &.correct{
+                background: #edf7e7;
+                color: #95c590;
             }
         }
         &-article{
-            color: rgba(0,0,0,.4);
+            color: rgba(0,0,0,.8);
         }
         &-input{
         padding: 5px;
