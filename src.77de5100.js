@@ -117,79 +117,225 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"../node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
-var bundleURL = null;
+})({"index.ts":[function(require,module,exports) {
+var testContent = "document.ready = function (callback) {\n    if (document.addEventListener) {\n        document.addEventListener('DOMContentLoaded', function () {\n            document.removeEventListener('DOMContentLoaded', arguments.callee, false);\n            callback();\n        }, false)\n    }\n    else if (document.attachEvent) {\n        document.attachEvent('onreadystatechange', function () {\n              if (document.readyState == \"complete\") {\n                        document.detachEvent(\"onreadystatechange\", arguments.callee);\n                        callback();\n               }\n        })\n    }\n    else if (document.lastChild == document.body) {\n        callback();\n    }\n}";
 
-function getBundleURLCached() {
-  if (!bundleURL) {
-    bundleURL = getBundleURL();
-  }
-
-  return bundleURL;
-}
-
-function getBundleURL() {
-  // Attempt to find the URL of the current script and use that as the base URL
-  try {
-    throw new Error();
-  } catch (err) {
-    var matches = ('' + err.stack).match(/(https?|file|ftp|chrome-extension|moz-extension):\/\/[^)\n]+/g);
-
-    if (matches) {
-      return getBaseURL(matches[0]);
+var WordBlock =
+/** @class */
+function () {
+  function WordBlock(word, type, index) {
+    if (type === void 0) {
+      type = "default";
     }
+
+    this.word = word;
+    this.type = type;
+    this.index = index;
+    this.html = document.createElement("span");
+
+    if (!word || word === " ") {
+      this.word = "&nbsp;";
+      this.html.innerHTML = "&nbsp";
+    } else if (word === "\r\n" || word === "\n") {
+      this.html = document.createElement("br");
+      this.word = "<br>";
+      console.log("换行");
+    } else {
+      this.html.innerText = word;
+    }
+
+    this.changeType(type);
   }
+  /**
+   * changeType
+   */
 
-  return '/';
-}
 
-function getBaseURL(url) {
-  return ('' + url).replace(/^((?:https?|file|ftp|chrome-extension|moz-extension):\/\/.+)\/[^/]+$/, '$1') + '/';
-}
-
-exports.getBundleURL = getBundleURLCached;
-exports.getBaseURL = getBaseURL;
-},{}],"../node_modules/parcel-bundler/src/builtins/css-loader.js":[function(require,module,exports) {
-var bundle = require('./bundle-url');
-
-function updateLink(link) {
-  var newLink = link.cloneNode();
-
-  newLink.onload = function () {
-    link.remove();
+  WordBlock.prototype.changeType = function (type) {
+    this.html.appendChild;
+    this.html.className = "word " + type;
   };
 
-  newLink.href = link.href.split('?')[0] + '?' + Date.now();
-  link.parentNode.insertBefore(newLink, link.nextSibling);
-}
+  WordBlock.prototype.toggleActive = function () {
+    var className = this.html.className.split(" ");
 
-var cssTimeout = null;
+    if (className.find(function (item) {
+      return item === 'active';
+    })) {}
 
-function reloadCSS() {
-  if (cssTimeout) {
-    return;
-  }
+    var isActive = className.findIndex(function (item) {
+      return item === 'active';
+    });
 
-  cssTimeout = setTimeout(function () {
-    var links = document.querySelectorAll('link[rel="stylesheet"]');
-
-    for (var i = 0; i < links.length; i++) {
-      if (bundle.getBaseURL(links[i].href) === bundle.getBundleURL()) {
-        updateLink(links[i]);
-      }
+    if (isActive === -1) {
+      className.push('active');
+    } else {
+      className.splice(isActive, 1);
     }
 
-    cssTimeout = null;
-  }, 50);
+    this.html.className = className.join(" ");
+  };
+
+  return WordBlock;
+}();
+
+var Input =
+/** @class */
+function () {
+  function Input(el) {
+    this.words = [];
+    this.index = 0;
+    this.oldIndex = NaN;
+    this.el = el;
+  }
+
+  Input.prototype.addWord = function (char, type, index) {
+    var word = new WordBlock(char, type, index);
+    this.el.appendChild(word.html);
+    this.words.push(word);
+    this.changeIndex(this.index + 1, this.index);
+  };
+
+  Input.prototype.deleteWord = function () {
+    if (this.index <= 0) {
+      this.changeIndex(0, NaN);
+      return false;
+    }
+
+    var word = this.words[this.words.length - 1];
+    word.html.remove();
+    this.words.pop();
+    this.changeIndex(this.index - 1, this.index);
+  };
+
+  Input.prototype.changeIndex = function (index, oldIndex) {
+    this.index = index;
+    this.oldIndex = oldIndex;
+    this.showIndex();
+  };
+
+  Input.prototype.showIndex = function () {
+    console.log(this.words);
+    this.words[this.oldIndex].toggleActive();
+    this.words[this.index].toggleActive();
+  };
+
+  return Input;
+}();
+/**
+ * TODO:
+ * 输入Text Format
+ * 高亮>
+ */
+
+
+var Typing =
+/** @class */
+function () {
+  function Typing(screen, content) {
+    this.articleWords = [];
+    this.content = content.split("");
+    this.screen = screen;
+    this.init();
+  }
+
+  Typing.prototype.init = function () {
+    this.displayArticle();
+    this.listenKeyborad();
+    this.input = new Input(document.getElementById("input"));
+  };
+
+  Typing.prototype.displayArticle = function () {
+    for (var i = 0; i < this.content.length; i++) {
+      var word = new WordBlock(this.content[i], "default", i);
+      this.articleWords.push(word);
+      this.screen.appendChild(word.html);
+      Window["test" + i] = word;
+    }
+  };
+
+  Typing.prototype.changeArticleWord = function (index, type) {
+    this.articleWords[index].changeType(type);
+  };
+
+  Typing.prototype.listenKeyborad = function () {
+    var _this = this;
+
+    window.onkeydown = function (event) {
+      var code = event.keyCode;
+      var key = event.key;
+      var index = _this.input.index; // input text
+
+      if (code > 47 && code < 59 || code > 64 && code < 91 || code > 185 && code < 223 || code === 32) {
+        if (_this.articleWords[index].word === "<br>") {
+          _this.handleBr(index);
+
+          return;
+        }
+
+        var type = "correct";
+        if (key !== _this.content[index]) type = "error";
+
+        _this.changeArticleWord(index, "typed");
+
+        _this.input.addWord(event.key, type, index);
+      } // ENTER
+
+
+      if (code === 13) {
+        console.log("enter");
+      }
+
+      if (code === 8) {
+        console.log("back", index);
+
+        _this.changeArticleWord(index - 1, "default");
+
+        _this.input.deleteWord();
+      }
+    };
+  };
+
+  Typing.prototype.handleBr = function (index) {
+    var i = index;
+    this.input.addWord("\n", "typed", index);
+    i++;
+    var articleChar = this.articleWords[i];
+
+    do {
+      this.input.addWord(" ", "typed", index);
+      articleChar = this.articleWords[++i];
+    } while (articleChar.word === "&nbsp;");
+  };
+
+  return Typing;
+}();
+
+var Editor =
+/** @class */
+function () {
+  function Editor() {}
+
+  return Editor;
+}();
+
+function __main__() {
+  var article = new Typing(document.getElementById("article"), testContent);
 }
 
-module.exports = reloadCSS;
-},{"./bundle-url":"../node_modules/parcel-bundler/src/builtins/bundle-url.js"}],"layout/index.scss":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
+window.onload = function () {
+  __main__(); // document.getElementById('btn').addEventListener('click',a)
 
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-},{"_css_loader":"../node_modules/parcel-bundler/src/builtins/css-loader.js"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+};
+
+function a() {
+  var code1 = document.getElementById("code");
+  console.log(code1.value);
+  var strContent = code1.value;
+  document.getElementById("set").innerHTML = strContent;
+  var article = new Typing(document.getElementById("article"), strContent);
+}
+},{}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -217,7 +363,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61990" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59430" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
@@ -393,5 +539,5 @@ function hmrAcceptRun(bundle, id) {
     return true;
   }
 }
-},{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js"], null)
-//# sourceMappingURL=/layout.2858bced.js.map
+},{}]},{},["../node_modules/parcel-bundler/src/builtins/hmr-runtime.js","index.ts"], null)
+//# sourceMappingURL=/src.77de5100.js.map
