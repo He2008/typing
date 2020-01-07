@@ -125,8 +125,9 @@ Object.defineProperty(exports, "__esModule", {
 });
 var java = "\npublic class StringCompareEmp{\n    public static void main(String args[]){\n       String str = \"Hello World\";\n       String anotherString = \"hello world\";\n       Object objStr = str;\n  \n       System.out.println( str.compareTo(anotherString) );\n       System.out.println( str.compareToIgnoreCase(anotherString) );\n       System.out.println( str.compareTo(objStr.toString()));\n    }\n }\n";
 var js = "\ndocument.ready = function (callback) {\n    if (document.addEventListener) {\n        document.addEventListener('DOMContentLoaded', function () {\n            document.removeEventListener('DOMContentLoaded', arguments.callee, false);\n            callback();\n        }, false)\n    }\n    else if (document.attachEvent) {\n        document.attachEvent('onreadystatechange', function () {\n              if (document.readyState == \"complete\") {\n                        document.detachEvent(\"onreadystatechange\", arguments.callee);\n                        callback();\n               }\n        })\n    }\n    else if (document.lastChild == document.body) {\n        callback();\n    }\n}\n";
+var line = "this is a line!";
 exports.default = {
-  content: js,
+  content: java,
   java: java,
   js: js
 };
@@ -139,7 +140,8 @@ Object.defineProperty(exports, "__esModule", {
 var utils = {
   hasClass: hasClass,
   addClass: addClass,
-  remove: remove
+  remove: remove,
+  timeLeft: timeLeft
 };
 /**
  *@desc 判断是否有某个Class
@@ -149,7 +151,7 @@ var utils = {
  */
 
 function hasClass(el, className) {
-  return new RegExp('(\\s|^)' + className + '(\\s|$)').test(el.className);
+  return new RegExp("(\\s|^)" + className + "(\\s|$)").test(el.className);
 }
 /**
  * @desc 添加Class
@@ -160,14 +162,50 @@ function hasClass(el, className) {
 
 function addClass(el, className) {
   if (hasClass(el, className)) return false;
-  el.className += ' ' + className;
+  el.className += " " + className;
 }
 
 function remove(el, className) {
   if (hasClass(el, className)) {
-    var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
-    el.className = el.className.replace(reg, ' ');
+    var reg = new RegExp("(\\s|^)" + className + "(\\s|$)");
+    el.className = el.className.replace(reg, " ");
   }
+}
+/**
+ * @desc startTime - endTime 剩余时间
+ * @param   startTime
+ * @param   endTime
+ * @return Object {d,h,m,s} 天时分秒
+ */
+
+
+function timeLeft(startTime, endTime) {
+  if (!startTime || !endTime) {
+    return false;
+  }
+
+  var t = endTime.getTime() - startTime.getTime();
+  var d = 0,
+      h = 0,
+      m = 0,
+      s = 0,
+      format = '0';
+
+  if (t > 0) {
+    d = t / 3600 / 24 / 1000;
+    h = Math.floor(t / 1000 / 60 / 60 % 24);
+    m = Math.floor(t / 1000 / 60 % 60);
+    s = Math.floor(t / 1000 % 60);
+    format = m + "\u5206" + s + "\u79D2";
+  }
+
+  return {
+    d: d,
+    h: h,
+    m: m,
+    s: s,
+    format: format
+  };
 }
 
 exports.default = utils;
@@ -346,10 +384,13 @@ function () {
   function Typing(config) {
     this.index = [0, 0];
     this.el = config.el;
-    utils_1.default.addClass(this.el, "screen-warp");
+    var wrap = document.createElement("div");
+    utils_1.default.addClass(wrap, "screen-warp");
     this.displayView = new view_1.View(config.text, "display");
     this.inputView = new view_1.View(config.text, "input");
-    this.el.append(this.displayView.html, this.inputView.html);
+    this.analysis = new Analysis();
+    wrap.append(this.displayView.html, this.inputView.html);
+    this.el.append(this.analysis.html, wrap);
     this.handleKeyEvent();
   }
   /**
@@ -383,24 +424,42 @@ function () {
 
       if (code > 47 && code < 59 || code > 64 && code < 91 || code > 185 && code < 223 || code === 32) {
         var type = "correct";
-        if (key === " ") key = "&nbsp;";
-        if (key !== displayBlock().char) type = "error";
+
+        if (key === " ") {
+          key = "&nbsp;";
+
+          if (event.preventDefault) {
+            event.preventDefault();
+          } else {
+            window.event.returnValue = false;
+          }
+        }
+
+        if (key !== displayBlock().char) {
+          type = "error";
+
+          _this.analysis.errorInput();
+        }
+
+        if (displayBlock().type === "end") {
+          _this.analysis.endInput();
+        }
+
         displayBlock().changeType("transparent");
         inputBlock().changeType(type);
 
-        _this.moveIndex("forward");
+        _this.moveIndex("forward"); // 计数
+
+
+        _this.analysis.addInput(); // 阻止浏览器默认
+
       } // ENTER
 
 
-      if (code === 13) {
-        console.log("enter");
-      } // back
+      if (code === 13) {} // back
 
 
       if (code === 8) {
-        console.log(_this.inputView);
-        console.log("back", _this.index);
-
         _this.moveIndex("back");
 
         displayBlock().changeType("default");
@@ -463,6 +522,96 @@ function () {
   };
 
   return Typing;
+}();
+
+var Analysis =
+/** @class */
+function () {
+  function Analysis() {
+    var _this = this;
+
+    this.inputNum = 0;
+    this.errorNum = 0;
+    this.isEnd = false;
+    this.time = new Time();
+    this.html = document.createElement("div");
+    utils_1.default.addClass(this.html, "analysis");
+    this.timer = setInterval(function () {
+      if (_this.isEnd) {
+        clearInterval(_this.timer);
+      }
+
+      _this.appendHtml();
+    }, 1000);
+  }
+
+  Analysis.prototype.addInput = function () {
+    if (this.isEnd) return;
+
+    if (this.inputNum === 0) {
+      this.time.setStart();
+    }
+
+    this.inputNum++;
+    this.handleData();
+  };
+
+  Analysis.prototype.errorInput = function () {
+    if (this.isEnd) return;
+    this.errorNum++;
+  };
+
+  Analysis.prototype.endInput = function () {
+    if (this.isEnd) return;
+    this.isEnd = true;
+    this.time.setEnd();
+  };
+
+  Analysis.prototype.handleData = function () {
+    this.result = {
+      totalTime: this.time.total,
+      totalInput: this.inputNum,
+      error: this.errorNum,
+      correctRate: this.errorNum / this.inputNum
+    };
+  };
+
+  Analysis.prototype.appendHtml = function () {
+    this.time.handleCostTime();
+    this.handleData();
+    var r = this.result;
+    var html = "<span>\u7528\u65F6:" + (r.totalTime.format || "0") + "</span><span>\u603B\u8F93\u5165:" + r.totalInput + "</span><span>\u9519\u8BEF:" + r.error + "</span><span>\u6B63\u786E\u7387:" + Math.ceil(r.correctRate * 100) + "</span>";
+    this.html.innerHTML = html;
+  };
+
+  return Analysis;
+}();
+
+var Time =
+/** @class */
+function () {
+  function Time() {}
+
+  Time.prototype.setStart = function () {
+    this.start = new Date();
+  };
+
+  Time.prototype.setEnd = function () {
+    this.end = new Date();
+    this.handleCostTime();
+  };
+
+  Time.prototype.handleCostTime = function () {
+    var end = new Date();
+
+    if (this.end) {
+      end = this.end;
+    }
+
+    this.total = utils_1.default.timeLeft(this.start, end);
+  };
+
+  return Time;
 }(); // 主函数
 
 
@@ -475,8 +624,6 @@ function __main__() {
 }
 
 window.onload = function () {
-  console.log("load");
-
   __main__();
 };
 },{"./config":"typingEditor/config.ts","./utils":"typingEditor/utils.ts","./view":"typingEditor/view.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
@@ -507,7 +654,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61990" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59814" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

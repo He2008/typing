@@ -34,10 +34,11 @@ document.ready = function (callback) {
     }
 }
 `
+const line = `this is a line!`
 
 
 export default{
-content:js,
+content:java,
 java,
 js
 

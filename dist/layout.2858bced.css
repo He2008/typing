@@ -4,7 +4,7 @@ body p {
 }
 
 .web-font {
-  font-family: monospace;
+  font-family: monospace, GeoCourierBold;
 }
 
 .container {
@@ -12,11 +12,9 @@ body p {
   margin: 0 auto;
 }
 
-.screen {
+.screen-warp {
   border: 1px solid #ccc;
   min-height: 3rem;
-}
-.screen-warp {
   position: relative;
   font-size: 26px;
   padding: 5px;

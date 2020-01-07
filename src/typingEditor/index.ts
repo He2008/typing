@@ -1,6 +1,6 @@
 import C from "./config";
 import Utils from "./utils";
-import {View} from './view'
+import { View } from "./view";
 
 /**
  * @desc Typing 类
@@ -11,17 +11,21 @@ class Typing {
   displayView: View;
   inputView: View;
   index: number[] = [0, 0];
+  analysis: Analysis;
   /**
    * 创建Typing实例
    * @param config.text 文章内容
-   * @param config.el 挂载的htmlElement 
+   * @param config.el 挂载的htmlElement
    */
   constructor(config: TypingConfig) {
     this.el = config.el;
-    Utils.addClass(this.el, "screen-warp");
+    let wrap = document.createElement("div");
+    Utils.addClass(wrap, "screen-warp");
     this.displayView = new View(config.text, "display");
     this.inputView = new View(config.text, "input");
-    this.el.append(this.displayView.html, this.inputView.html);
+    this.analysis = new Analysis();
+    wrap.append(this.displayView.html, this.inputView.html);
+    this.el.append(this.analysis.html, wrap);
     this.handleKeyEvent();
   }
 
@@ -46,20 +50,34 @@ class Typing {
         code === 32
       ) {
         let type: wordBlockType = "correct";
-        if (key === " ") key = "&nbsp;";
-        if (key !== displayBlock().char) type = "error";
+        if (key === " ") {
+          key = "&nbsp;";
+          if (event.preventDefault) {
+            event.preventDefault();
+          } else {
+            window.event.returnValue = false;
+          }
+        }
+        if (key !== displayBlock().char) {
+          type = "error";
+          this.analysis.errorInput();
+        }
+        if (displayBlock().type === "end") {
+          this.analysis.endInput();
+        }
         displayBlock().changeType("transparent");
         inputBlock().changeType(type);
         this.moveIndex("forward");
+
+        // 计数
+        this.analysis.addInput();
+        // 阻止浏览器默认
       }
       // ENTER
       if (code === 13) {
-        console.log("enter");
       }
       // back
       if (code === 8) {
-        console.log(this.inputView);
-        console.log("back", this.index);
         this.moveIndex("back");
         displayBlock().changeType("default");
         inputBlock().changeType("transparent");
@@ -82,7 +100,7 @@ class Typing {
     char().toggleActive(false);
 
     if (type === "forward") {
-        if(checkEnd(this.displayView)) return;
+      if (checkEnd(this.displayView)) return;
       if (charIndex >= line().charList.length - 1) {
         this.index[0] = 0;
         this.index[1]++;
@@ -90,7 +108,7 @@ class Typing {
         this.index[0]++;
       }
     } else if (type === "back") {
-        if(checkStart(this.displayView)) return;
+      if (checkStart(this.displayView)) return;
       if (charIndex > 0 && char().type !== "indent") {
         this.index[0]--;
       } else {
@@ -113,6 +131,85 @@ class Typing {
   }
 }
 
+class Analysis {
+  html: HTMLElement;
+  time: Time;
+  inputNum: number = 0;
+  errorNum: number = 0;
+  result: any;
+  isEnd: boolean = false;
+  timer: number;
+  constructor() {
+    this.time = new Time();
+    this.html = document.createElement("div");
+    Utils.addClass(this.html, "analysis");
+    this.timer = setInterval(() => {
+      if (this.isEnd) {
+        clearInterval(this.timer);
+      }
+      this.appendHtml();
+    }, 1000);
+  }
+  addInput() {
+    if (this.isEnd) return;
+    if (this.inputNum === 0) {
+      this.time.setStart();
+    }
+    this.inputNum++;
+    this.handleData();
+  }
+  errorInput() {
+    if (this.isEnd) return;
+    this.errorNum++;
+  }
+  endInput() {
+    if (this.isEnd) return;
+    this.isEnd = true;
+    this.time.setEnd();
+  }
+  handleData() {
+    this.result = {
+      totalTime: this.time.total,
+      totalInput: this.inputNum,
+      error: this.errorNum,
+      correctRate: this.errorNum / this.inputNum
+    };
+  }
+  appendHtml() {
+    this.time.handleCostTime();
+    this.handleData();
+    let r = this.result;
+    let html = `<span>用时:${r.totalTime.format || "0"}</span><span>总输入:${
+      r.totalInput
+    }</span><span>错误:${r.error}</span><span>正确率:${Math.ceil(
+      r.correctRate * 100
+    )}</span>`;
+    this.html.innerHTML = html;
+  }
+}
+
+class Time {
+  start: Date;
+  end: Date;
+  total: string;
+  timer: number;
+  constructor() {}
+  setStart() {
+    this.start = new Date();
+  }
+  setEnd() {
+    this.end = new Date();
+    this.handleCostTime();
+  }
+  handleCostTime() {
+    let end = new Date();
+    if (this.end) {
+      end = this.end;
+    }
+    this.total = Utils.timeLeft(this.start, end);
+  }
+}
+
 // 主函数
 function __main__() {
   let config: TypingConfig = {
@@ -123,6 +220,5 @@ function __main__() {
 }
 
 window.onload = function() {
-  console.log("load");
   __main__();
 };

@@ -126,7 +126,8 @@ Object.defineProperty(exports, "__esModule", {
 var utils = {
   hasClass: hasClass,
   addClass: addClass,
-  remove: remove
+  remove: remove,
+  timeLeft: timeLeft
 };
 /**
  *@desc 判断是否有某个Class
@@ -136,7 +137,7 @@ var utils = {
  */
 
 function hasClass(el, className) {
-  return new RegExp('(\\s|^)' + className + '(\\s|$)').test(el.className);
+  return new RegExp("(\\s|^)" + className + "(\\s|$)").test(el.className);
 }
 /**
  * @desc 添加Class
@@ -147,14 +148,50 @@ function hasClass(el, className) {
 
 function addClass(el, className) {
   if (hasClass(el, className)) return false;
-  el.className += ' ' + className;
+  el.className += " " + className;
 }
 
 function remove(el, className) {
   if (hasClass(el, className)) {
-    var reg = new RegExp('(\\s|^)' + className + '(\\s|$)');
-    el.className = el.className.replace(reg, ' ');
+    var reg = new RegExp("(\\s|^)" + className + "(\\s|$)");
+    el.className = el.className.replace(reg, " ");
   }
+}
+/**
+ * @desc startTime - endTime 剩余时间
+ * @param   startTime
+ * @param   endTime
+ * @return Object {d,h,m,s} 天时分秒
+ */
+
+
+function timeLeft(startTime, endTime) {
+  if (!startTime || !endTime) {
+    return false;
+  }
+
+  var t = endTime.getTime() - startTime.getTime();
+  var d = 0,
+      h = 0,
+      m = 0,
+      s = 0,
+      format = '0';
+
+  if (t > 0) {
+    d = t / 3600 / 24 / 1000;
+    h = Math.floor(t / 1000 / 60 / 60 % 24);
+    m = Math.floor(t / 1000 / 60 % 60);
+    s = Math.floor(t / 1000 % 60);
+    format = m + "\u5206" + s + "\u79D2";
+  }
+
+  return {
+    d: d,
+    h: h,
+    m: m,
+    s: s,
+    format: format
+  };
 }
 
 exports.default = utils;
@@ -187,7 +224,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61990" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59814" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
