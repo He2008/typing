@@ -1,5 +1,6 @@
 body p {
   font-size: 12px;
+  margin: 0;
 }
 
 .web-font {
@@ -20,11 +21,12 @@ body p {
   font-size: 26px;
   padding: 5px;
 }
-.screen-warp .word {
+.screen-warp .char {
+  position: relative;
   font-size: 18px;
   line-height: 24px;
   display: inline-block;
-  width: 9px;
+  width: 10px;
   text-align: center;
   transition: color 0.12s ease-in-out;
   border-bottom: 3px solid transparent;
@@ -32,26 +34,34 @@ body p {
   min-width: 8px;
   border-radius: 4px;
 }
-.screen-warp .word.typed {
+.screen-warp .char.transparent {
   opacity: 0;
 }
-.screen-warp .word.error {
+.screen-warp .char.error {
   background-color: #ffdcd9;
   color: #d55b60;
 }
-.screen-warp .word.correct {
+.screen-warp .char.correct {
   background: #edf7e7;
   color: #95c590;
 }
-.screen-warp-article {
+.screen-warp .char.isActive {
+  border-color: #3295db;
+  color: #3295db;
+  opacity: 1;
+  border-radius: 0;
+}
+.screen-warp .char.end {
+  opacity: 0;
+}
+.screen-warp .display {
   color: rgba(0, 0, 0, 0.8);
 }
-.screen-warp-input {
+.screen-warp .input {
   padding: 5px;
   position: absolute;
   top: 0;
   left: 0;
-  color: blue;
 }
 
 /*# sourceMappingURL=/layout.2858bced.css.map */

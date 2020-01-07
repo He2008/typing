@@ -3,6 +3,7 @@
 body{
     p{
         font-size: 12px;
+        margin:0;
     }
 }
 .web-font{
@@ -20,18 +21,19 @@ body{
         position: relative;
         font-size: 26px;
         padding: 5px;
-        .word{
+        .char{
+            position: relative;
             font-size: 18px;
             line-height: 24px;
             display: inline-block;
-            width: 9px;
+            width: 10px;
             text-align: center;
             transition: color 0.12s ease-in-out;
             border-bottom: 3px solid transparent;
             margin: 1px;
             min-width: 8px;
             border-radius: 4px;
-            &.typed{
+            &.transparent{
                 opacity: 0;
             }
             &.error{
@@ -43,16 +45,26 @@ body{
                 background: #edf7e7;
                 color: #95c590;
             }
+            &.isActive{
+                    border-color: #3295db;
+                    color:#3295db;
+                    opacity: 1;
+                    border-radius: 0;
+                
+            }
+            &.end{
+                opacity: 0;
+            }
         }
-        &-article{
+        .display{
             color: rgba(0,0,0,.8);
         }
-        &-input{
-        padding: 5px;
+        .input{
+             padding: 5px;
             position: absolute;
             top: 0;
             left: 0;
-            color: blue;
+            // color: blue;
          
         }
     }

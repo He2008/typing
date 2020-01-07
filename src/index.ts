@@ -91,9 +91,10 @@ class Input {
   changeIndex(index: number, oldIndex: number) {
     this.index = index;
     this.oldIndex = oldIndex;
-    // this.showIndex();
+    this.showIndex();
   }
   showIndex() {
+    console.log(this.words)
     this.words[this.oldIndex].toggleActive();
     this.words[this.index].toggleActive()
   }
@@ -146,7 +147,9 @@ class Typing {
           this.handleBr(index);
           return;
         }
+        
         let type: wordBlockType = "correct";
+        if()
         if (key !== this.content[index]) type = "error";
         this.changeArticleWord(index, "typed");
         this.input.addWord(event.key, type, index);
