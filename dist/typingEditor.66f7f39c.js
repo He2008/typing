@@ -349,6 +349,114 @@ function () {
 }();
 
 exports.View = View;
+},{"./utils":"typingEditor/utils.ts"}],"typingEditor/analysis.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var utils_1 = __importDefault(require("./utils"));
+
+var Analysis =
+/** @class */
+function () {
+  function Analysis() {
+    var _this = this;
+
+    this.inputNum = 0;
+    this.errorNum = 0;
+    this.isEnd = false;
+    this.time = new Time();
+    this.html = document.createElement("div");
+    utils_1.default.addClass(this.html, "analysis");
+    this.timer = setInterval(function () {
+      if (_this.isEnd) {
+        clearInterval(_this.timer);
+      }
+
+      _this.appendHtml();
+    }, 1000);
+  }
+
+  Analysis.prototype.addInput = function () {
+    if (this.isEnd) return;
+
+    if (this.inputNum === 0) {
+      this.time.setStart();
+    }
+
+    this.inputNum++;
+    this.handleData();
+  };
+
+  Analysis.prototype.errorInput = function () {
+    if (this.isEnd) return;
+    this.errorNum++;
+  };
+
+  Analysis.prototype.endInput = function () {
+    if (this.isEnd) return;
+    this.isEnd = true;
+    this.time.setEnd();
+  };
+
+  Analysis.prototype.handleData = function () {
+    this.result = {
+      totalTime: this.time.total,
+      totalInput: this.inputNum,
+      error: this.errorNum,
+      correctRate: this.inputNum ? 1 - this.errorNum / this.inputNum : 1
+    };
+  };
+
+  Analysis.prototype.appendHtml = function () {
+    this.time.handleCostTime();
+    this.handleData();
+    var r = this.result;
+    var html = "<span>\u7528\u65F6:" + (r.totalTime.format || "0") + "</span><span>\u603B\u8F93\u5165:" + r.totalInput + "</span><span>\u9519\u8BEF:" + r.error + "</span><span>\u6B63\u786E\u7387:" + Math.ceil(r.correctRate * 100) + "%</span>";
+    this.html.innerHTML = html;
+  };
+
+  return Analysis;
+}();
+
+exports.Analysis = Analysis;
+
+var Time =
+/** @class */
+function () {
+  function Time() {}
+
+  Time.prototype.setStart = function () {
+    this.start = new Date();
+  };
+
+  Time.prototype.setEnd = function () {
+    this.end = new Date();
+    this.handleCostTime();
+  };
+
+  Time.prototype.handleCostTime = function () {
+    var end = new Date();
+
+    if (this.end) {
+      end = this.end;
+    }
+
+    this.total = utils_1.default.timeLeft(this.start, end);
+  };
+
+  return Time;
+}();
+
+exports.Time = Time;
 },{"./utils":"typingEditor/utils.ts"}],"typingEditor/index.ts":[function(require,module,exports) {
 "use strict";
 
@@ -367,6 +475,8 @@ var config_1 = __importDefault(require("./config"));
 var utils_1 = __importDefault(require("./utils"));
 
 var view_1 = require("./view");
+
+var analysis_1 = require("./analysis");
 /**
  * @desc Typing 类
  * @
@@ -388,7 +498,7 @@ function () {
     utils_1.default.addClass(wrap, "screen-warp");
     this.displayView = new view_1.View(config.text, "display");
     this.inputView = new view_1.View(config.text, "input");
-    this.analysis = new Analysis();
+    this.analysis = new analysis_1.Analysis();
     wrap.append(this.displayView.html, this.inputView.html);
     this.el.append(this.analysis.html, wrap);
     this.handleKeyEvent();
@@ -522,96 +632,6 @@ function () {
   };
 
   return Typing;
-}();
-
-var Analysis =
-/** @class */
-function () {
-  function Analysis() {
-    var _this = this;
-
-    this.inputNum = 0;
-    this.errorNum = 0;
-    this.isEnd = false;
-    this.time = new Time();
-    this.html = document.createElement("div");
-    utils_1.default.addClass(this.html, "analysis");
-    this.timer = setInterval(function () {
-      if (_this.isEnd) {
-        clearInterval(_this.timer);
-      }
-
-      _this.appendHtml();
-    }, 1000);
-  }
-
-  Analysis.prototype.addInput = function () {
-    if (this.isEnd) return;
-
-    if (this.inputNum === 0) {
-      this.time.setStart();
-    }
-
-    this.inputNum++;
-    this.handleData();
-  };
-
-  Analysis.prototype.errorInput = function () {
-    if (this.isEnd) return;
-    this.errorNum++;
-  };
-
-  Analysis.prototype.endInput = function () {
-    if (this.isEnd) return;
-    this.isEnd = true;
-    this.time.setEnd();
-  };
-
-  Analysis.prototype.handleData = function () {
-    this.result = {
-      totalTime: this.time.total,
-      totalInput: this.inputNum,
-      error: this.errorNum,
-      correctRate: this.errorNum / this.inputNum
-    };
-  };
-
-  Analysis.prototype.appendHtml = function () {
-    this.time.handleCostTime();
-    this.handleData();
-    var r = this.result;
-    var html = "<span>\u7528\u65F6:" + (r.totalTime.format || "0") + "</span><span>\u603B\u8F93\u5165:" + r.totalInput + "</span><span>\u9519\u8BEF:" + r.error + "</span><span>\u6B63\u786E\u7387:" + Math.ceil(r.correctRate * 100) + "</span>";
-    this.html.innerHTML = html;
-  };
-
-  return Analysis;
-}();
-
-var Time =
-/** @class */
-function () {
-  function Time() {}
-
-  Time.prototype.setStart = function () {
-    this.start = new Date();
-  };
-
-  Time.prototype.setEnd = function () {
-    this.end = new Date();
-    this.handleCostTime();
-  };
-
-  Time.prototype.handleCostTime = function () {
-    var end = new Date();
-
-    if (this.end) {
-      end = this.end;
-    }
-
-    this.total = utils_1.default.timeLeft(this.start, end);
-  };
-
-  return Time;
 }(); // 主函数
 
 
@@ -626,7 +646,7 @@ function __main__() {
 window.onload = function () {
   __main__();
 };
-},{"./config":"typingEditor/config.ts","./utils":"typingEditor/utils.ts","./view":"typingEditor/view.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./config":"typingEditor/config.ts","./utils":"typingEditor/utils.ts","./view":"typingEditor/view.ts","./analysis":"typingEditor/analysis.ts"}],"../node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;

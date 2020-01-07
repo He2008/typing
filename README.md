@@ -3,7 +3,7 @@
 - [`parcel`(查看文档)](https://www.parceljs.cn) 打包
 - Typescript
 - Scss
-<!-- - bulma -->
+<!-- git - bulma -->
 <!-- - [tailwindcss(文档)](https://www.tailwindcss.cn) -->
 
 
